@@ -16,8 +16,6 @@ VM_LIST=(
     # ---
     # vmid:       proxmox上でVMを識別するID
     # vmname:     proxmox上でVMを識別する名称およびホスト名
-    # cpu:        VMに割り当てるコア数(vCPU)
-    # mem:        VMに割り当てるメモリ(MB)
     # vmip:       VMに割り振る固定IP
     # targetip:   VMの配置先となるProxmoxホストのIP
     # targethost: VMの配置先となるProxmoxホストのホスト名
