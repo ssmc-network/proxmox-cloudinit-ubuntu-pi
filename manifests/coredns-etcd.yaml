@@ -3,38 +3,44 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: coredns-config
-  namespace: kube-system
+  namespace: default
 data:
   Corefile: |
     .:53 {
         etcd {
             path /skydns
-            endpoint http://etcd:2379
+            endpoint http://etcd-home:2379
         }
         errors
         log . "{proto} {remote} is Request: {name} {type} {>id}"
         cache 30
+        forward . 8.8.8.8 8.8.4.4
     }
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: coredns
-  namespace: kube-system
+  name: coredns-home
+  namespace: default
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: coredns
+      app: coredns-home
   template:
     metadata:
       labels:
-        app: coredns
+        app: coredns-home
     spec:
       containers:
       - name: coredns
         image: coredns/coredns
         args: ["-conf", "/etc/coredns/Corefile"]
+        ports:
+        - containerPort: 53
+          protocol: UDP
+        - containerPort: 53
+          protocol: TCP
         volumeMounts:
         - name: config-volume
           mountPath: /etc/coredns
@@ -46,37 +52,45 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: coredns
-  namespace: kube-system
+  name: coredns-home
+  namespace: default
 spec:
   selector:
-    app: coredns
+    app: coredns-home
   ports:
-  - protocol: UDP
+  - name: dns-udp
+    protocol: UDP
+    port: 53
+    targetPort: 53
+  - name: dns-tcp
+    protocol: TCP
     port: 53
     targetPort: 53
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: etcd
-  namespace: kube-system
+  name: etcd-home
+  namespace: default
 spec:
-  serviceName: "etcd"
+  serviceName: "etcd-home"
   replicas: 1
   selector:
     matchLabels:
-      app: etcd
+      app: etcd-home
   template:
     metadata:
       labels:
-        app: etcd
+        app: etcd-home
     spec:
       containers:
       - name: etcd
         image: bitnami/etcd
         ports:
         - containerPort: 2379
+        env:
+        - name: ALLOW_NONE_AUTHENTICATION
+          value: "yes"
         volumeMounts:
         - name: etcd-data
           mountPath: /bitnami/etcd
@@ -92,11 +106,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: etcd
-  namespace: kube-system
+  name: etcd-home
+  namespace: default
 spec:
   selector:
-    app: etcd
+    app: etcd-home
   ports:
   - port: 2379
     targetPort: 2379
