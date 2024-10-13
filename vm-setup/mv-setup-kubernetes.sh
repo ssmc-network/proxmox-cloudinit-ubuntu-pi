@@ -77,7 +77,7 @@ for array in "${VM_LIST[@]}"
 do
     echo "${array}" | while read -r vmid template_vmid vmname vmip targetip targethost
     do
-        if ! ssh -n "${targetip}"  qm list | grep "${template_vmid}"; then
+        if ! ssh -n "${targetip}"  qm list | grep "${vmip}"; then
             # clone from template
             # in clone phase, can't create vm-disk to local volume
             ssh -n "${targetip}" qm clone "${template_vmid}" "${vmid}" --name "${vmname}" --full true --target "${targethost}"
@@ -122,7 +122,7 @@ EOF
             ssh -n "${targetip}" qm set "${vmid}" --ipconfig0 ip=$vmip/24,gw=192.168.20.2
 
         else
-            echo "VMID ${template_vmid} already exists. Skipping creation."
+            echo "VMID ${vmip} already exists. Skipping creation."
         fi
     done
 done
