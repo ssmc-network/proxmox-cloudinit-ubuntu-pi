@@ -108,6 +108,9 @@ runcmd:
   - su - cloudinit -c "chmod 600 ~/.ssh/authorized_keys"
   # change default shell to bash
   - chsh -s \$(which bash) cloudinit
+  # set kubernetes
+  - su - cloudinit -c "curl -s https://raw.githubusercontent.com/ssmc-network/proxmox-cloudinit-ubuntu-pi/refs/heads/main/k8s-setup/setup.sh > ~/setup.sh"
+  - su - cloudinit -c "sudo bash ~/setup.sh"
 EOF
 # ----- #
         # upload snippet to vm
