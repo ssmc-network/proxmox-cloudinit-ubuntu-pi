@@ -17,11 +17,23 @@ data:
         forward . 8.8.8.8 8.8.4.4
     }
 ---
+apiVersion: v1
+kind: Service
+spec:
+  selector:
+    app: coredns-home
+  ports:
+  - name: dns-udp
+    protocol: UDP
+    port: 53
+    targetPort: 53
+  - name: dns-tcp
+    protocol: TCP
+    port: 53
+    targetPort: 53
+---
 apiVersion: apps/v1
 kind: Deployment
-metadata:
-  name: coredns-home
-  namespace: default
 spec:
   replicas: 1
   selector:
@@ -51,27 +63,15 @@ spec:
 ---
 apiVersion: v1
 kind: Service
-metadata:
-  name: coredns-home
-  namespace: default
 spec:
   selector:
-    app: coredns-home
+    app: etcd-home
   ports:
-  - name: dns-udp
-    protocol: UDP
-    port: 53
-    targetPort: 53
-  - name: dns-tcp
-    protocol: TCP
-    port: 53
-    targetPort: 53
+  - port: 2379
+    targetPort: 2379
 ---
 apiVersion: apps/v1
 kind: StatefulSet
-metadata:
-  name: etcd-home
-  namespace: default
 spec:
   serviceName: "etcd-home"
   replicas: 1
@@ -102,15 +102,3 @@ spec:
       resources:
         requests:
           storage: 1Gi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: etcd-home
-  namespace: default
-spec:
-  selector:
-    app: etcd-home
-  ports:
-  - port: 2379
-    targetPort: 2379
