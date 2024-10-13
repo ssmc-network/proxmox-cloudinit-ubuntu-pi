@@ -77,14 +77,15 @@ for array in "${VM_LIST[@]}"
 do
     echo "${array}" | while read -r vmid template_vmid vmname vmip targetip targethost
     do
-        # clone from template
-        # in clone phase, can't create vm-disk to local volume
-        ssh -n "${targetip}" qm clone "${template_vmid}" "${vmid}" --name "${vmname}" --full true --target "${targethost}"
+        if ! ssh -n "${targetip}"  qm list | grep "${template_vmid}"; then
+            # clone from template
+            # in clone phase, can't create vm-disk to local volume
+            ssh -n "${targetip}" qm clone "${template_vmid}" "${vmid}" --name "${vmname}" --full true --target "${targethost}"
 
-        # resize disk (Resize after cloning, because it takes time to clone a large disk)
-        ssh -n "${targetip}" qm resize "${vmid}" scsi0 32G
+            # resize disk (Resize after cloning, because it takes time to clone a large disk)
+            ssh -n "${targetip}" qm resize "${vmid}" scsi0 32G
 
-        # create snippet for cloud-init(user-config)
+            # create snippet for cloud-init(user-config)
 # ----- #
 cat > ${vmname}-user.yaml << EOF
 #cloud-config
@@ -113,12 +114,16 @@ runcmd:
   - su - cloudinit -c "sudo bash ~/setup.sh"
 EOF
 # ----- #
-        # upload snippet to vm
-        scp ${vmname}-user.yaml ${targetip}:/var/lib/vz/snippets/${vmname}-user.yaml
-        rm ${vmname}-user.yaml
-        # set snippet to vm
-        ssh -n "${targetip}" qm set "${vmid}" --cicustom "user=local:snippets/${vmname}-user.yaml"
-        ssh -n "${targetip}" qm set "${vmid}" --ipconfig0 ip=$vmip/24,gw=192.168.20.2
+            # upload snippet to vm
+            scp ${vmname}-user.yaml ${targetip}:/var/lib/vz/snippets/${vmname}-user.yaml
+            rm ${vmname}-user.yaml
+            # set snippet to vm
+            ssh -n "${targetip}" qm set "${vmid}" --cicustom "user=local:snippets/${vmname}-user.yaml"
+            ssh -n "${targetip}" qm set "${vmid}" --ipconfig0 ip=$vmip/24,gw=192.168.20.2
+
+        else
+            echo "VMID ${template_vmid} already exists. Skipping creation."
+        fi
     done
 done
 
