@@ -48,7 +48,7 @@ kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.8/confi
 kubectl apply -f https://raw.githubusercontent.com/ssmc-network/proxmox-cloudinit-ubuntu-pi/refs/heads/main/manifests/nginx.yaml
 ```
 
-## nginx
+## CoreDNS
 ```sh
 kubectl apply -f https://raw.githubusercontent.com/ssmc-network/proxmox-cloudinit-ubuntu-pi/refs/heads/main/manifests/coredns-etcd.yaml
 ```
