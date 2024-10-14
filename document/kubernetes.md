@@ -48,6 +48,21 @@ kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.8/confi
 kubectl apply -f https://raw.githubusercontent.com/ssmc-network/proxmox-cloudinit-ubuntu-pi/refs/heads/main/manifests/nginx.yaml
 ```
 
+## nginx
+```sh
+kubectl apply -f https://raw.githubusercontent.com/ssmc-network/proxmox-cloudinit-ubuntu-pi/refs/heads/main/manifests/coredns-etcd.yaml
+```
+
+```sh
+kubectl get pods
+```
+
+
+```sh
+kubectl exec -it <etcd-pod-name> -- etcdctl put /skydns/home/pi-pve01 '{"host":"192.168.20.20"}'
+kubectl exec -it <etcd-pod-name> -- etcdctl put /skydns/home/pve01 '{"host":"192.168.20.3"}'
+```
+
 # kubectl導入
 クラスター外からkubectlコマンドが実行できると便利
 
