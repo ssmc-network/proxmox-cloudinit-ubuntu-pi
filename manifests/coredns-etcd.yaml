@@ -9,16 +9,17 @@ data:
     .:53 {
         etcd {
             path /skydns
-            endpoint http://etcd-home:2379
+            endpoint http://etcd-service:2379
         }
         errors
         log . "{proto} {remote} is Request: {name} {type} {>id}"
         cache 30
-        forward . 8.8.8.8 8.8.4.4
     }
 ---
 apiVersion: v1
 kind: Service
+metadata:
+  name: coredns-service
 spec:
   selector:
     app: coredns-home
@@ -31,9 +32,13 @@ spec:
     protocol: TCP
     port: 53
     targetPort: 53
+  type: LoadBalancer
+  loadBalancerIP: 192.168.20.120
 ---
 apiVersion: apps/v1
 kind: Deployment
+metadata:
+  name: coredns-deployment
 spec:
   replicas: 1
   selector:
@@ -63,6 +68,8 @@ spec:
 ---
 apiVersion: v1
 kind: Service
+metadata:
+  name: etcd-service
 spec:
   selector:
     app: etcd-home
@@ -71,9 +78,10 @@ spec:
     targetPort: 2379
 ---
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
+metadata:
+  name: etcd-deployment
 spec:
-  serviceName: "etcd-home"
   replicas: 1
   selector:
     matchLabels:
@@ -91,14 +99,5 @@ spec:
         env:
         - name: ALLOW_NONE_AUTHENTICATION
           value: "yes"
-        volumeMounts:
-        - name: etcd-data
-          mountPath: /bitnami/etcd
-  volumeClaimTemplates:
-  - metadata:
-      name: etcd-data
-    spec:
-      accessModes: ["ReadWriteOnce"]
-      resources:
-        requests:
-          storage: 1Gi
+        - name: ETCD_DATA_DIR
+          value: "/etcd-data"
