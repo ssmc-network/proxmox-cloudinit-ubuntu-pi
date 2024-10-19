@@ -22,11 +22,8 @@ VM_LIST=(
     # ---
     #vmid  #template_vmid  #vmname              #vmip          #targetip      #targethost
     "1001  9000            pi-ubuntu-k8s-cp-01  192.168.20.40  192.168.20.20  pi-pve01"
-    "1002  9000            pi-ubuntu-k8s-wk-01  192.168.20.41  192.168.20.20  pi-pve01"
-    "1003  9001            pi-ubuntu-k8s-cp-02  192.168.20.42  192.168.20.21  pi-pve02"
-    "1004  9001            pi-ubuntu-k8s-wk-02  192.168.20.43  192.168.20.21  pi-pve02"
-    "1005  9002            pi-ubuntu-k8s-cp-03  192.168.20.44  192.168.20.22  pi-pve03"
-    "1006  9002            pi-ubuntu-k8s-wk-03  192.168.20.45  192.168.20.22  pi-pve03"
+    "1002  9001            pi-ubuntu-k8s-wk-01  192.168.20.41  192.168.20.21  pi-pve02"
+    "1003  9002            pi-ubuntu-k8s-wk-02  192.168.20.42  192.168.20.22  pi-pve03"
 )
 
 for array in "${TEMPLATE_VMID_LIST[@]}"
@@ -40,7 +37,7 @@ do
             ssh -n "${targetip}" wget https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-arm64.img
 
             # create a new VM and attach Network Adaptor
-            ssh -n "${targetip}" qm create $template_vmid --cores 2 --memory 4096 --net0 virtio,bridge=vmbr0
+            ssh -n "${targetip}" qm create $template_vmid --cores 4 --memory 6,144 --net0 virtio,bridge=vmbr0
 
 
             ssh -n "${targetip}" qm set $template_vmid --agent 1 --bios ovmf --cpu host --efidisk0 local:1,format=qcow2,efitype=4m,pre-enrolled-keys=1,size=64M
