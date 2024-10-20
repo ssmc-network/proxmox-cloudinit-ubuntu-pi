@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-KUBERNETES_VERSION=v1.31
-CRIO_VERSION=v1.31
+KUBERNETES_VERSION=v1.31.1
+CRIO_VERSION=v1.31.1
 
 ufw allow 6443/tcp
 
