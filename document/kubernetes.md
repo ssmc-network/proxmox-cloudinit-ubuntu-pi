@@ -40,12 +40,20 @@ kubectl apply -f - -n kube-system
 ```
 
 ```sh
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.8/config/manifests/metallb-native.yaml
+export METALLB_VERSION=v0.14.8
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/${METALLB_VERSION}/config/manifests/metallb-native.yaml
+kubectl apply -f https://raw.githubusercontent.com/ssmc-network/proxmox-cloudinit-ubuntu-pi/refs/heads/main/manifests/metallb-config.yaml
 ```
 
 ## nginx
 ```sh
 kubectl apply -f https://raw.githubusercontent.com/ssmc-network/proxmox-cloudinit-ubuntu-pi/refs/heads/main/manifests/nginx.yaml
+```
+
+## Ingress-Nginx
+```sh
+export INGRESS_NGINX_VERSION=v1.12.0-beta.0
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-${INGRESS_NGINX_VERSION}/deploy/static/provider/cloud/deploy.yaml
 ```
 
 ## CoreDNS
@@ -69,8 +77,10 @@ kubectl exec -it <etcd-pod-name> -- etcdctl put /skydns/home/pve01 '{"host":"192
 ## kubectl準備
 バージョンがクラスターと合わせること
 ```sh
-export KUBERNETES_VERSION=v1.31
+export KUBERNETES_VERSION=v1.31.1
 curl -LO "https://dl.k8s.io/release/${KUBERNETES_VERSION}/bin/linux/amd64/kubectl"
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
 ```
 
 ```sh
